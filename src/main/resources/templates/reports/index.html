@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Reports')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar(activePage)}"></nav>
+<div class="container">
+    <div class="page-header">
+        <h2>Reports</h2>
+        <span class="subtitle">Generate and download reports</span>
+    </div>
+
+    <div class="reports-grid">
+        <div class="card report-card">
+            <h3>Device Reports</h3>
+            <p>Full list of all devices with status, condition and assignment info.</p>
+            <div class="report-actions">
+                <a th:href="@{/api/reports/devices/pdf}"   class="btn-primary" target="_blank">Download PDF</a>
+                <a th:href="@{/api/reports/devices/excel}" class="btn-outline"  target="_blank">Download Excel</a>
+            </div>
+        </div>
+        <div class="card report-card">
+            <h3>Transaction Reports</h3>
+            <p>Complete audit trail of all device assignments, returns, repairs and losses.</p>
+            <div class="report-actions">
+                <a th:href="@{/api/reports/transactions/pdf}"   class="btn-primary" target="_blank">Download PDF</a>
+                <a th:href="@{/api/reports/transactions/excel}" class="btn-outline"  target="_blank">Download Excel</a>
+            </div>
+        </div>
+        <div class="card report-card">
+            <h3>User / Staff Reports</h3>
+            <p>All staff members with their roles, departments and assigned device count.</p>
+            <div class="report-actions">
+                <a th:href="@{/api/reports/users/pdf}" class="btn-primary" target="_blank">Download PDF</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

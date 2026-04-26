@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Devices')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar(activePage)}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div class="page-header">
+        <h2>Devices</h2>
+        <a th:href="@{/devices/add}" class="btn-primary">+ Add Device</a>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="filters">
+        <form th:action="@{/devices}" method="get" class="filter-form">
+            <input type="text" name="search" th:value="${search}" placeholder="Search by name, serial, brand..."/>
+            <select name="status">
+                <option value="">All Statuses</option>
+                <option th:each="s : ${ {'AVAILABLE','ASSIGNED','UNDER_REPAIR','LOST','RETIRED'} }"
+                        th:value="${s}" th:text="${s}" th:selected="${s == status}"></option>
+            </select>
+            <button type="submit" class="btn-primary">Search</button>
+            <a th:href="@{/devices}" class="btn-outline">Clear</a>
+        </form>
+    </div>
+
+    <div class="card">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Serial No.</th>
+                    <th>Brand</th>
+                    <th>Condition</th>
+                    <th>Status</th>
+                    <th>Assigned To</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="d : ${devices}">
+                    <td th:text="${d.name}">-</td>
+                    <td th:text="${d.type}">-</td>
+                    <td th:text="${d.serialNumber}">-</td>
+                    <td th:text="${d.brand ?: '—'}">-</td>
+                    <td th:text="${d.condition}">-</td>
+                    <td><span th:text="${d.status}" th:class="'badge badge-' + ${d.status?.name()?.toLowerCase()}">-</span></td>
+                    <td th:text="${d.assignedToUserName ?: '—'}">-</td>
+                    <td class="actions">
+                        <!-- Assign -->
+                        <a th:if="${d.status?.name() == 'AVAILABLE'}"
+                           th:href="@{/devices/{id}/assign(id=${d.id})}" class="btn-sm btn-green">Assign</a>
+                        <!-- Return -->
+                        <form th:if="${d.status?.name() == 'ASSIGNED'}"
+                              th:action="@{/devices/{id}/return(id=${d.id})}" method="post" style="display:inline">
+                            <input type="hidden" name="notes" value="Returned"/>
+                            <button type="submit" class="btn-sm btn-blue"
+                                    onclick="return confirm('Confirm return?')">Return</button>
+                        </form>
+                        <!-- Repair -->
+                        <form th:if="${d.status?.name() != 'UNDER_REPAIR' and d.status?.name() != 'LOST' and d.status?.name() != 'RETIRED'}"
+                              th:action="@{/devices/{id}/repair(id=${d.id})}" method="post" style="display:inline">
+                            <input type="hidden" name="notes" value="Sent to repair"/>
+                            <button type="submit" class="btn-sm btn-orange"
+                                    onclick="return confirm('Send to repair?')">Repair</button>
+                        </form>
+                        <!-- Lost -->
+                        <form th:if="${d.status?.name() != 'LOST' and d.status?.name() != 'RETIRED'}"
+                              th:action="@{/devices/{id}/lost(id=${d.id})}" method="post" style="display:inline">
+                            <input type="hidden" name="notes" value="Reported lost"/>
+                            <button type="submit" class="btn-sm btn-red"
+                                    onclick="return confirm('Mark as lost?')">Lost</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(devices)}">
+                    <td colspan="8" class="empty">No devices found.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

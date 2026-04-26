@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Assign Device')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar(activePage)}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div class="page-header">
+        <h2>Assign Device</h2>
+        <a th:href="@{/devices}" class="btn-outline">← Back</a>
+    </div>
+
+    <div class="card form-card">
+        <div class="device-info-box">
+            <strong th:text="${device.name}">Device</strong>
+            <span th:text="'Serial: ' + ${device.serialNumber}">Serial</span>
+            <span th:text="${device.type} + ' — ' + ${device.condition}">Type</span>
+        </div>
+
+        <form th:action="@{/devices/{id}/assign(id=${device.id})}" method="post">
+            <div class="form-group">
+                <label>Assign To *</label>
+                <select name="userId" required>
+                    <option value="">Select staff member...</option>
+                    <option th:each="u : ${users}"
+                            th:value="${u.id}"
+                            th:text="${u.fullName + ' (' + u.department + ') — ' + u.employeeId}"></option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea name="notes" rows="3" placeholder="Reason for assignment, condition at handover..."></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Confirm Assignment</button>
+                <a th:href="@{/devices}" class="btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

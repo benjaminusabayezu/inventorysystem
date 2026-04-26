@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Transactions')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar(activePage)}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div class="page-header">
+        <h2>Transaction History</h2>
+        <div style="display:flex;gap:8px;">
+            <a th:href="@{/api/reports/transactions/pdf}"   class="btn-outline" target="_blank">Export PDF</a>
+            <a th:href="@{/api/reports/transactions/excel}" class="btn-outline" target="_blank">Export Excel</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Device</th>
+                    <th>Serial</th>
+                    <th>Action</th>
+                    <th>User</th>
+                    <th>Performed By</th>
+                    <th>Date</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="t : ${transactions}">
+                    <td th:text="${t.id}">-</td>
+                    <td th:text="${t.deviceName}">-</td>
+                    <td th:text="${t.deviceSerial}">-</td>
+                    <td><span th:text="${t.action}" th:class="'badge badge-' + ${t.action?.name()?.toLowerCase()}">-</span></td>
+                    <td th:text="${t.userName ?: '—'}">-</td>
+                    <td th:text="${t.performedByName ?: '—'}">-</td>
+                    <td th:text="${#temporals.format(t.actionDate, 'yyyy-MM-dd HH:mm')}">-</td>
+                    <td th:text="${t.notes ?: '—'}">-</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(transactions)}">
+                    <td colspan="8" class="empty">No transactions found.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

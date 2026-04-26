@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar(activePage)}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div class="page-header">
+        <h2>Dashboard</h2>
+        <span class="subtitle">Welcome back, <span sec:authentication="name">User</span></span>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+        <div class="stat-card stat-blue">
+            <div class="stat-value" th:text="${stats.total}">0</div>
+            <div class="stat-label">Total Devices</div>
+        </div>
+        <div class="stat-card stat-green">
+            <div class="stat-value" th:text="${stats.available}">0</div>
+            <div class="stat-label">Available</div>
+        </div>
+        <div class="stat-card stat-orange">
+            <div class="stat-value" th:text="${stats.assigned}">0</div>
+            <div class="stat-label">Assigned</div>
+        </div>
+        <div class="stat-card stat-purple">
+            <div class="stat-value" th:text="${stats.repair}">0</div>
+            <div class="stat-label">Under Repair</div>
+        </div>
+        <div class="stat-card stat-red">
+            <div class="stat-value" th:text="${stats.lost}">0</div>
+            <div class="stat-label">Lost</div>
+        </div>
+    </div>
+
+    <!-- Recent transactions -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Recent Transactions</h3>
+            <a th:href="@{/transactions}" class="btn-sm">View All</a>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Device</th>
+                    <th>Action</th>
+                    <th>User</th>
+                    <th>Performed By</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="t : ${recentTransactions}">
+                    <td th:text="${t.deviceName}">-</td>
+                    <td><span th:text="${t.action}" th:class="'badge badge-' + ${t.action?.name()?.toLowerCase()}">-</span></td>
+                    <td th:text="${t.userName ?: '—'}">-</td>
+                    <td th:text="${t.performedByName ?: '—'}">-</td>
+                    <td th:text="${#temporals.format(t.actionDate, 'yyyy-MM-dd HH:mm')}">-</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(recentTransactions)}">
+                    <td colspan="5" class="empty">No transactions yet.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

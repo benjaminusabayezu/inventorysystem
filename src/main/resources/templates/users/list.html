@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Users')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar(activePage)}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div class="page-header">
+        <h2>Users / Staff</h2>
+        <a th:href="@{/users/add}" class="btn-primary">+ Add User</a>
+    </div>
+
+    <div class="filters">
+        <form th:action="@{/users}" method="get" class="filter-form">
+            <input type="text" name="search" th:value="${search}" placeholder="Search by name, ID, department..."/>
+            <button type="submit" class="btn-primary">Search</button>
+            <a th:href="@{/users}" class="btn-outline">Clear</a>
+        </form>
+    </div>
+
+    <div class="card">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Emp ID</th>
+                    <th>Full Name</th>
+                    <th>Department</th>
+                    <th>Position</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Devices</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="u : ${users}">
+                    <td th:text="${u.employeeId}">-</td>
+                    <td th:text="${u.fullName}">-</td>
+                    <td th:text="${u.department}">-</td>
+                    <td th:text="${u.position ?: '—'}">-</td>
+                    <td th:text="${u.email ?: '—'}">-</td>
+                    <td><span th:text="${u.role}" th:class="'badge badge-role-' + ${u.role?.name()?.toLowerCase()}">-</span></td>
+                    <td><span th:text="${u.status}" th:class="'badge badge-' + ${u.status?.name()?.toLowerCase()}">-</span></td>
+                    <td th:text="${u.assignedDeviceCount}">0</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(users)}">
+                    <td colspan="8" class="empty">No users found.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

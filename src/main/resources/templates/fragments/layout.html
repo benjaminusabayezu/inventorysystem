@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title} + ' | Airtel Inventory'">Airtel Inventory</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav th:fragment="navbar(activePage)" class="navbar">
+    <div class="navbar-brand">
+        <span class="brand-logo">A</span>
+        <span>Airtel Rwanda — Inventory</span>
+    </div>
+    <div class="navbar-links">
+        <a th:href="@{/dashboard}"    th:classappend="${activePage=='dashboard'?'active':''}">Dashboard</a>
+        <a th:href="@{/devices}"      th:classappend="${activePage=='devices'?'active':''}">Devices</a>
+        <a th:href="@{/users}"        th:classappend="${activePage=='users'?'active':''}"
+           sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_IT_STAFF')">Users</a>
+        <a th:href="@{/transactions}" th:classappend="${activePage=='transactions'?'active':''}">Transactions</a>
+        <a th:href="@{/reports}"      th:classappend="${activePage=='reports'?'active':''}">Reports</a>
+    </div>
+    <div class="navbar-user">
+        <span class="username" sec:authentication="name">User</span>
+        <a th:href="@{/logout}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+<div th:fragment="alerts">
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+</div>
+</body>
+</html>

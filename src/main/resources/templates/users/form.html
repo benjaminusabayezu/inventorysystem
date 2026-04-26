@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Add User')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar(activePage)}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div class="page-header">
+        <h2>Add New User</h2>
+        <a th:href="@{/users}" class="btn-outline">← Back</a>
+    </div>
+
+    <div class="card form-card">
+        <form th:action="@{/users/add}" method="post">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" name="fullName" required placeholder="e.g. Jean Pierre Habimana"/>
+                </div>
+                <div class="form-group">
+                    <label>Employee ID *</label>
+                    <input type="text" name="employeeId" required placeholder="e.g. EMP-0010"/>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Department *</label>
+                    <input type="text" name="department" required placeholder="e.g. IT, Finance, Sales"/>
+                </div>
+                <div class="form-group">
+                    <label>Position</label>
+                    <input type="text" name="position" placeholder="e.g. IT Officer"/>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="name@airtel.rw"/>
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text" name="phone" placeholder="+250788000000"/>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Username (for login)</label>
+                    <input type="text" name="username" placeholder="login username"/>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="passwordHash" placeholder="leave blank for staff without login"/>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Role</label>
+                    <select name="role">
+                        <option value="STAFF">STAFF</option>
+                        <option value="IT_STAFF">IT_STAFF</option>
+                        <option value="ADMIN">ADMIN</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Save User</button>
+                <a th:href="@{/users}" class="btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

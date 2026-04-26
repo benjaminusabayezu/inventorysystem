@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Add Device')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar(activePage)}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div class="page-header">
+        <h2>Add New Device</h2>
+        <a th:href="@{/devices}" class="btn-outline">← Back</a>
+    </div>
+
+    <div class="card form-card">
+        <form th:action="@{/devices/add}" method="post">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Device Name *</label>
+                    <input type="text" name="name" required placeholder="e.g. Dell Latitude 5520"/>
+                </div>
+                <div class="form-group">
+                    <label>Serial Number *</label>
+                    <input type="text" name="serialNumber" required placeholder="e.g. DL-2024-001"/>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Type *</label>
+                    <select name="type" required>
+                        <option value="">Select type...</option>
+                        <option th:each="t : ${ {'LAPTOP','DESKTOP','PHONE','TABLET','PRINTER','ROUTER','SWITCH','UPS','MONITOR','OTHER'} }"
+                                th:value="${t}" th:text="${t}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Condition</label>
+                    <select name="condition">
+                        <option value="NEW">NEW</option>
+                        <option value="GOOD" selected>GOOD</option>
+                        <option value="FAIR">FAIR</option>
+                        <option value="POOR">POOR</option>
+                        <option value="DAMAGED">DAMAGED</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Brand</label>
+                    <input type="text" name="brand" placeholder="e.g. Dell, HP, Samsung"/>
+                </div>
+                <div class="form-group">
+                    <label>Model</label>
+                    <input type="text" name="model" placeholder="e.g. Latitude 5520"/>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Purchase Date</label>
+                    <input type="datetime-local" name="purchaseDate"/>
+                </div>
+                <div class="form-group">
+                    <label>Warranty Expiry</label>
+                    <input type="datetime-local" name="warrantyExpiry"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea name="notes" rows="3" placeholder="Any additional notes..."></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Save Device</button>
+                <a th:href="@{/devices}" class="btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
