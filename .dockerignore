@@ -1,0 +1,8 @@
+target
+logs
+data
+.git
+.gitignore
+.idea
+*.log
+*.mv.db
