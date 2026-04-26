@@ -39,28 +39,24 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         ensureFlagTableExists();
-
         if (isAlreadySeeded()) {
             log.info("Database already initialized — skipping seed.");
             return;
         }
-
         log.info("First run detected. Seeding initial data...");
         seedUsers();
         seedDevices();
         markAsSeeded();
-        log.info("Database seeded successfully. Will not re-seed on future runs.");
+        log.info("Seeding complete. Will not re-seed on future runs.");
     }
 
-    // ----------------------------------------------------------------
-    // Flag table — survives app restarts, only cleared if DB file deleted
-    // ----------------------------------------------------------------
+    // ── Flag table ────────────────────────────────────────
 
     private void ensureFlagTableExists() {
         jdbcTemplate.execute(
             "CREATE TABLE IF NOT EXISTS app_config (" +
-            "  config_key   VARCHAR(100) PRIMARY KEY, " +
-            "  config_value VARCHAR(255) NOT NULL, " +
+            "  config_key   VARCHAR(100) PRIMARY KEY," +
+            "  config_value VARCHAR(255) NOT NULL," +
             "  created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
             ")"
         );
@@ -70,8 +66,7 @@ public class DataInitializer implements CommandLineRunner {
         try {
             Integer count = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM app_config WHERE config_key = ?",
-                Integer.class, SEED_FLAG_KEY
-            );
+                Integer.class, SEED_FLAG_KEY);
             return count != null && count > 0;
         } catch (Exception e) {
             return false;
@@ -81,73 +76,136 @@ public class DataInitializer implements CommandLineRunner {
     private void markAsSeeded() {
         jdbcTemplate.update(
             "INSERT INTO app_config (config_key, config_value) VALUES (?, ?)",
-            SEED_FLAG_KEY, "true"
-        );
+            SEED_FLAG_KEY, "true");
     }
 
-    // ----------------------------------------------------------------
-    // Seed data — only runs ONCE ever
-    // ----------------------------------------------------------------
+    // ── Users ─────────────────────────────────────────────
 
     private void seedUsers() {
-        if (!userRepository.existsByEmail("admin@airtel.rw")) {
-            User admin = new User();
-            admin.setFullName("System Administrator");
-            admin.setEmployeeId("EMP-0001");
-            admin.setDepartment("IT");
-            admin.setEmail("admin@airtel.rw");
-            admin.setPhone("+250788000001");
-            admin.setPosition("System Administrator");
-            admin.setRole(User.UserRole.ADMIN);
-            admin.setStatus(User.UserStatus.ACTIVE);
-            admin.setUsername("admin");
-            admin.setPasswordHash(passwordEncoder.encode("admin123"));
-            userRepository.save(admin);
-        }
-
-        if (!userRepository.existsByEmail("jp.habimana@airtel.rw")) {
-            User itStaff = new User();
-            // same setup...
-            userRepository.save(itStaff);
-        }
-
-        if (!userRepository.existsByEmail("amina.uwase@airtel.rw")) {
-            User staff = new User();
-            // same setup...
-            userRepository.save(staff);
-        }
-
-        log.info("Users after seed: {}", userRepository.count());
+        createUserIfNotExists(
+            "System Administrator", "EMP-0001", "IT",
+            "admin@airtel.rw", "+250788000001", "System Administrator",
+            User.UserRole.ADMIN, "admin", "admin123"
+        );
+        createUserIfNotExists(
+            "Jean Pierre Habimana", "EMP-0002", "IT",
+            "jp.habimana@airtel.rw", "+250788000002", "IT Officer",
+            User.UserRole.IT_STAFF, "jp.habimana", "staff123"
+        );
+        createUserIfNotExists(
+            "Amina Uwase", "EMP-0003", "Finance",
+            "amina.uwase@airtel.rw", "+250788000003", "Finance Officer",
+            User.UserRole.STAFF, null, null
+        );
+        log.info("Seeded {} users", userRepository.count());
     }
 
+    private void createUserIfNotExists(String fullName, String employeeId, String department,
+                                       String email, String phone, String position,
+                                       User.UserRole role, String username, String rawPassword) {
+        if (userRepository.existsByEmployeeId(employeeId)) return;
+
+        User user = new User();
+        user.setFullName(fullName);
+        user.setEmployeeId(employeeId);
+        user.setDepartment(department);
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.setPosition(position);
+        user.setRole(role);
+        user.setStatus(User.UserStatus.ACTIVE);
+
+        if (username != null && rawPassword != null) {
+            user.setUsername(username);
+            user.setPasswordHash(passwordEncoder.encode(rawPassword));
+        }
+        userRepository.save(user);
+    }
+
+    // ── Devices ───────────────────────────────────────────
+
     private void seedDevices() {
+        createDeviceIfNotExists(
+            "Dell Latitude 5520",
+            Device.DeviceType.LAPTOP,       // <-- type always explicitly set
+            "DL-2024-001",
+            "Dell", "Latitude 5520", "Black",
+            Device.DeviceCondition.GOOD,
+            Device.DeviceStatus.AVAILABLE,
+            LocalDateTime.of(2023, 1, 15, 0, 0),
+            LocalDateTime.of(2026, 1, 15, 0, 0),
+            null
+        );
+        createDeviceIfNotExists(
+            "HP ProBook 450 G9",
+            Device.DeviceType.LAPTOP,
+            "HP-2024-002",
+            "HP", "ProBook 450 G9", "Silver",
+            Device.DeviceCondition.NEW,
+            Device.DeviceStatus.AVAILABLE,
+            LocalDateTime.of(2024, 3, 1, 0, 0),
+            LocalDateTime.of(2027, 3, 1, 0, 0),
+            null
+        );
+        createDeviceIfNotExists(
+            "Samsung Galaxy A54 5G",
+            Device.DeviceType.PHONE,
+            "SG-2024-003",
+            "Samsung", "Galaxy A54 5G", "Graphite",
+            Device.DeviceCondition.GOOD,
+            Device.DeviceStatus.AVAILABLE,
+            LocalDateTime.of(2023, 6, 1, 0, 0),
+            null,
+            null
+        );
+        createDeviceIfNotExists(
+            "Cisco Router RV160",
+            Device.DeviceType.ROUTER,
+            "CR-2024-004",
+            "Cisco", "RV160", "Black",
+            Device.DeviceCondition.GOOD,
+            Device.DeviceStatus.UNDER_REPAIR,
+            LocalDateTime.of(2022, 9, 1, 0, 0),
+            null,
+            "Under repair — power supply issue"
+        );
+        createDeviceIfNotExists(
+            "Dell Monitor P2422H",
+            Device.DeviceType.MONITOR,
+            "DM-2024-005",
+            "Dell", "P2422H", "Black",
+            Device.DeviceCondition.GOOD,
+            Device.DeviceStatus.AVAILABLE,
+            LocalDateTime.of(2023, 3, 10, 0, 0),
+            LocalDateTime.of(2026, 3, 10, 0, 0),
+            null
+        );
+        log.info("Seeded {} devices", deviceRepository.count());
+    }
 
-        if (!deviceRepository.existsBySerialNumber("DL-2024-001")) {
-            Device laptop1 = new Device();
-            laptop1.setName("Dell Latitude 5520");
-            laptop1.setSerialNumber("DL-2024-001");
-            // باقي fields...
-            deviceRepository.save(laptop1);
-        }
+    private void createDeviceIfNotExists(String name,
+                                         Device.DeviceType type,
+                                         String serialNumber,
+                                         String brand, String model, String color,
+                                         Device.DeviceCondition condition,
+                                         Device.DeviceStatus status,
+                                         LocalDateTime purchaseDate,
+                                         LocalDateTime warrantyExpiry,
+                                         String notes) {
+        if (deviceRepository.existsBySerialNumber(serialNumber)) return;
 
-        if (!deviceRepository.existsBySerialNumber("HP-2024-002")) {
-            Device laptop2 = new Device();
-            laptop2.setSerialNumber("HP-2024-002");
-            deviceRepository.save(laptop2);
-        }
-
-        if (!deviceRepository.existsBySerialNumber("SG-2024-003")) {
-            Device phone = new Device();
-            phone.setSerialNumber("SG-2024-003");
-            deviceRepository.save(phone);
-        }
-
-        if (!deviceRepository.existsBySerialNumber("CR-2024-004")) {
-            Device router = new Device();
-            router.setSerialNumber("CR-2024-004");
-            deviceRepository.save(router);
-        }
-
-        log.info("Devices after seed: {}", deviceRepository.count());
+        Device device = new Device();
+        device.setName(name);
+        device.setType(type);                   // never null
+        device.setSerialNumber(serialNumber);
+        device.setBrand(brand);
+        device.setModel(model);
+        device.setColor(color);
+        device.setCondition(condition != null ? condition : Device.DeviceCondition.GOOD);
+        device.setStatus(status != null ? status : Device.DeviceStatus.AVAILABLE);
+        device.setPurchaseDate(purchaseDate);
+        device.setWarrantyExpiry(warrantyExpiry);
+        device.setNotes(notes);
+        deviceRepository.save(device);
     }
 }
